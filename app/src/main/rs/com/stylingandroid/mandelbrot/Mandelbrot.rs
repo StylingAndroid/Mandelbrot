@@ -20,26 +20,31 @@ double endY = BASE_END_Y;
 void mandelbrot(
     rs_script script,
     rs_allocation allocation,
-    int32_t iterations_value
+    int32_t iterations_value,
+    double imageRatio,
+    double zoom,
+    double xOffset,
+    double yOffset
 ) {
     width = rsAllocationGetDimX(allocation);
     height = rsAllocationGetDimY(allocation);
     double canvasWidth = (BASE_END_X - BASE_START_X);
+    double zoomedCanvasWidth = canvasWidth * zoom;
     double canvasHeight = (BASE_END_Y - BASE_START_Y);
+    double zoomedCanvasHeight = canvasHeight * zoom;
     double canvasRatio =  canvasWidth / canvasHeight;
-    double imageRatio = width / height;
     if (canvasRatio > imageRatio) {
         double scaleFactor = canvasRatio / imageRatio;
-        startX = BASE_START_X;
-        endX = BASE_END_X;
-        startY = BASE_START_Y * scaleFactor;
-        endY = startY + (canvasHeight * scaleFactor);
+        startX = BASE_START_X + (canvasWidth * xOffset);
+        endX = startX + zoomedCanvasWidth;
+        startY = (BASE_START_Y * scaleFactor) + (canvasHeight * yOffset * scaleFactor);
+        endY = startY + (zoomedCanvasHeight * scaleFactor);
     } else {
         double scaleFactor = imageRatio / canvasRatio;
-        startX = BASE_START_X * scaleFactor;
-        endX = startX + (canvasWidth * scaleFactor);
-        startY = BASE_START_Y ;
-        endY = BASE_END_Y;
+        startX = (BASE_START_X * scaleFactor) + (canvasWidth * xOffset * scaleFactor);
+        endX = startX + (zoomedCanvasWidth * scaleFactor);
+        startY = BASE_START_Y + (canvasHeight * yOffset);
+        endY = startY + zoomedCanvasHeight;
     }
     iterations = iterations_value;
     rsForEach(script, allocation, allocation);

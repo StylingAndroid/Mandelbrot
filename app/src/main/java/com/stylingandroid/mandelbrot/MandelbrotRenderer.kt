@@ -13,9 +13,11 @@ class MandelbrotRenderer(
 
     private var allocation: Allocation? = null
     private var bitmap: Bitmap? = null
+    private var imageRatio: Double = 1.0
 
-    fun setSize(width: Int, height: Int): Bitmap =
-        Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).also {
+    fun setSize(width: Int, height: Int): Bitmap {
+        imageRatio = width.toDouble() / height.toDouble()
+        return Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).also {
             bitmap?.recycle()
             bitmap = it
             allocation?.destroy()
@@ -26,14 +28,19 @@ class MandelbrotRenderer(
                 Allocation.USAGE_SCRIPT
             )
         }
+    }
 
-    fun render(): Bitmap? =
+    fun render(zoom: Double = 1.0, offsetX: Double = 0.0, offsetY: Double = 0.0): Bitmap? =
         bitmap?.run {
             val start = System.currentTimeMillis()
             script.invoke_mandelbrot(
                 script,
                 allocation,
-                ITERATIONS
+                ITERATIONS,
+                imageRatio,
+                zoom,
+                offsetX,
+                offsetY
             )
             allocation?.copyTo(this)
             println("Generation complete in ${System.currentTimeMillis() - start}ms")
