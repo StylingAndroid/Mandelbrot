@@ -4,33 +4,21 @@ import android.content.Context
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
-import kotlin.coroutines.CoroutineContext
 import kotlin.math.max
 import kotlin.math.min
-import kotlinx.coroutines.CompletionHandler
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class ViewportDelegate(
     context: Context,
-    override val coroutineContext: CoroutineContext,
     private val imageView: MandelbrotView,
     private val renderer: MandelbrotRenderer
 ) : ScaleGestureDetector.OnScaleGestureListener,
     GestureDetector.SimpleOnGestureListener(),
-    TouchHandler,
-    CoroutineScope {
+    TouchHandler {
 
     private var scaleDetector: ScaleGestureDetector = ScaleGestureDetector(context, this)
     private var gestureDetector: GestureDetector = GestureDetector(context, this)
 
     private val viewPort = RectD()
-
-    private var currentJob: Job? = null
-    private var queuedRender = false
 
     init {
         imageView.apply {
@@ -69,7 +57,8 @@ class ViewportDelegate(
         renderImage()
     }
 
-    override fun onScaleEnd(detector: ScaleGestureDetector) { /* NO-OP */ }
+    override fun onScaleEnd(detector: ScaleGestureDetector) { /* NO-OP */
+    }
 
     override fun onTouchEvent(event: MotionEvent) {
         scaleDetector.onTouchEvent(event)
@@ -109,29 +98,10 @@ class ViewportDelegate(
     }
 
     private fun renderImage() {
-        if (currentJob?.isActive == true) {
-            queuedRender = true
-        } else {
-            currentJob = launch(Dispatchers.Default) {
-                val bitmap = renderer.render(
-                    viewPort.width / imageView.width.toDouble(),
-                    viewPort.left / imageView.width.toDouble(),
-                    viewPort.top / imageView.height.toDouble()
-                )
-                withContext(Dispatchers.Main) {
-                    imageView.setImageBitmap(bitmap)
-                }
-            }.apply {
-                invokeOnCompletion(object : CompletionHandler {
-                    override fun invoke(cause: Throwable?) {
-                        if (queuedRender) {
-                            queuedRender = false
-                            currentJob = null
-                            renderImage()
-                        }
-                    }
-                })
-            }
-        }
+        renderer.render(
+            viewPort.width / imageView.width.toDouble(),
+            viewPort.left / imageView.width.toDouble(),
+            viewPort.top / imageView.height.toDouble()
+        )
     }
 }

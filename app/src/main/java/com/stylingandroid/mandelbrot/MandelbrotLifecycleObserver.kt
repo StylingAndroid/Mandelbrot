@@ -20,12 +20,12 @@ class MandelbrotLifecycleObserver(
     override val coroutineContext: CoroutineContext
         get() = job + Dispatchers.Main
 
-    private val renderer: MandelbrotRenderer = MandelbrotRenderer(context)
+    private val renderer: MandelbrotRenderer = MandelbrotRenderer(imageView, coroutineContext)
     private val viewportDelegate: ViewportDelegate
 
     init {
         lifecycleOwner.lifecycle.addObserver(this)
-        viewportDelegate = ViewportDelegate(context, coroutineContext, imageView, renderer)
+        viewportDelegate = ViewportDelegate(context, imageView, renderer)
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
