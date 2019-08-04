@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Mandelbrot</string>
+    <string name="mandelbrot_set_viewer">Mandelbrot Set Viewer</string>
+</resources>
