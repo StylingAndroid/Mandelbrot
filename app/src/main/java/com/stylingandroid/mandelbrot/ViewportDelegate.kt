@@ -57,8 +57,7 @@ class ViewportDelegate(
         renderImage()
     }
 
-    override fun onScaleEnd(detector: ScaleGestureDetector) { /* NO-OP */
-    }
+    override fun onScaleEnd(detector: ScaleGestureDetector) { /* NO-OP */ }
 
     override fun onTouchEvent(event: MotionEvent) {
         scaleDetector.onTouchEvent(event)
